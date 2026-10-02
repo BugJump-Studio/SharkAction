@@ -4,6 +4,12 @@
 
 > **版本状态**：`0.0.1-alpha.1` —— 内测初版（pre-release）。功能尚未完整，配置与数值仍可能调整，请勿用于正式服。
 
+## 加入内测交流
+
+QQ 群：[点击加入群聊](https://qm.qq.com/q/IgrhYpf2gY)（群号 521093171）
+
+反馈问题、提建议、参与数值讨论都欢迎在群里聊，也可以直接提 [GitHub Issue](https://github.com/BugJump-Studio/SharkAction/issues)。
+
 ## 功能特性
 
 - **31+ 种角色**：狼人阵营、好人阵营、中立阵营各有独特技能与被动
