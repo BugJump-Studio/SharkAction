@@ -1,0 +1,7 @@
+name: WIND SPIRIT
+display-name: "§7风灵"
+camp: 好人阵营
+description: "随风而行"
+skill1-name: "§7【风起之时】§f只施加当前风向的增益给周围(r=6,含自己) CD30s"
+skill2-name: "无"
+passive-name: "§7【风之切换】§f每20s切换风向(迅捷/跃进/治愈/飘扬轮流)并自动获得2个风弹 风灵自身持续获得当前风向效果"

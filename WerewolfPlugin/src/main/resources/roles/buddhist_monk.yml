@@ -1,0 +1,7 @@
+name: BUDDHIST MONK
+display-name: "§6佛僧"
+camp: 好人阵营
+description: "谨记善行"
+skill1-name: "§6【劝善】§f将周围(r=8)最近未明身份玩家转换为武僧"
+skill2-name: "无"
+passive-name: "无"

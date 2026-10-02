@@ -1,0 +1,15 @@
+# 权限配置文件
+# 使用 /ww login <密码> 登录
+# 密码使用BCrypt加密，可以使用在线工具生成：https://bcrypt-generator.com/
+
+admins:
+  # 示例：用户名: 加密密码
+  # admin: $2a$10$...
+
+# 管理员权限等级
+permissions:
+  # owner: 服主，可编辑所有身份
+  # admin: 管理员，仅能编辑自定义身份
+  levels:
+    # 示例：用户名: 权限等级
+    # admin: owner

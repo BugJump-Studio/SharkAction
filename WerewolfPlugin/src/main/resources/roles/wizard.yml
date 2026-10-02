@@ -1,0 +1,8 @@
+name: WIZARD
+display-name: "§1巫师"
+camp: 危险中立
+description: "以雷淬心"
+skill1-name: "§1【单点落雷】§f面前第五格召唤雷电劈三次 CD5s 消耗80能量"
+skill2-name: "§1【直线雷击】§f面前第五到九格召唤雷电 CD5s 消耗120能量"
+skill3-name: "§1【环形雷击】§f面前第五格横向5道雷电同时劈下 CD5s 消耗120能量"
+passive-name: "§1【能量回复】§f每死一人恢复300能量 低于250每秒回40"

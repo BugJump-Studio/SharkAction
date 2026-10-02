@@ -1,0 +1,7 @@
+name: ARSONIST
+display-name: "§4纵火犯"
+camp: 和平中立
+description: "火焰啊"
+skill1-name: "§4【上油】§f为附近(r=5)所有玩家上油 CD20s"
+skill2-name: "§4【纵火】§f引燃所有有油玩家 造成5心真伤 CD20s"
+passive-name: "§4【获胜条件】§f所有存活玩家身上均有油"

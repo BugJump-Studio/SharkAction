@@ -1,0 +1,7 @@
+name: GUARD
+display-name: "§6守卫"
+camp: 好人阵营
+description: "众志成城"
+skill1-name: "§6【守护之誓】§f为最近(r=8)玩家增加一次复活+4黄心 自身获得盾牌 CD30s"
+skill2-name: "§6【众志成城】§f给自己及周围(r=6)所有存活玩家施加6黄心 一次性"
+passive-name: "无"

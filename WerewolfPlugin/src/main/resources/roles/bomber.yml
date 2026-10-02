@@ -1,0 +1,7 @@
+name: BOMBER
+display-name: "§5炸弹客"
+camp: 狼人阵营
+description: "世人难懂我的艺术"
+skill1-name: "§5【炸弹盛宴】§f点燃炸弹 15s后爆炸 造成15心伤害(非真伤 仅炸持有者) 持有者右键r=4内玩家可传递 爆炸后5s重新发放未点燃的炸弹"
+skill2-name: "无"
+passive-name: "无"

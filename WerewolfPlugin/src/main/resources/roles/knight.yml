@@ -1,0 +1,7 @@
+name: KNIGHT
+display-name: "§6骑士"
+camp: 好人阵营
+description: "荣幸之至"
+skill1-name: "§6【决斗】§f对最近玩家发起决斗 好人=骑士死 狼人=扣9心+亮身份 中立=扣6心"
+skill2-name: "无"
+passive-name: "无"

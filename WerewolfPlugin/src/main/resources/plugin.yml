@@ -1,0 +1,24 @@
+name: SharkAction
+version: '${project.version}'
+main: com.werewolf.plugin.WerewolfPlugin
+api-version: '1.19'
+author: WerewolfTeam
+description: Minecraft Shark Action Game Plugin
+
+commands:
+  werewolf:
+    description: 狼人杀游戏主指令
+    usage: /werewolf <subcommand>
+    aliases: [ww, wolf]
+  ww:
+    description: 狼人杀游戏主指令
+    usage: /ww <subcommand>
+    aliases: [werewolf, wolf]
+
+permissions:
+  werewolf.admin:
+    description: 狼人杀管理员权限
+    default: op
+  werewolf.player:
+    description: 狼人杀玩家权限
+    default: true

@@ -1,0 +1,7 @@
+name: KILLER
+display-name: "§c杀手"
+camp: 狼人阵营
+description: "致命的交易"
+skill1-name: "§c【飞刀】§f扔出飞刀 造成7心伤害+减速 CD12s"
+skill2-name: "§c【捷径】§f向前瞬移5格+速度3 10s CD30s"
+passive-name: "无"

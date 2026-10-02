@@ -1,0 +1,7 @@
+name: THE SURVIVOR
+display-name: "§a幸存者"
+camp: 好人阵营
+description: "废土上的希望"
+skill1-name: "§a【血清注射】§f一次性 立刻恢复3心 然后缓慢(15s)恢复5心 获得力量3 速度3 跳跃2 持续15s"
+skill2-name: "§a【废土生存法则】§f挖掘10s判定 获得随机物资 CD30s"
+passive-name: "无"

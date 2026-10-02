@@ -1,0 +1,8 @@
+name: CRIMSON MESSENGER
+display-name: "§c猩红信使"
+camp: 狼人阵营
+description: "我代表狼族的诚意而来"
+skill1-name: "§c【狼之血】§f扣自己3.5心 获得力量2+速度3 CD20s"
+skill2-name: "§c【狼之骨】§f扣自己3心 最近玩家中毒20s扣6心 CD25s"
+skill3-name: "§c【狼之魂】§f扣自己6.5心 最近玩家凋零20s扣8心 CD30s"
+passive-name: "§c【狼之心】§f场上每死一人恢复3心"

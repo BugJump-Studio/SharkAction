@@ -1,0 +1,8 @@
+name: WOLF WITCH
+display-name: "§c狼巫"
+camp: 狼人阵营
+description: "深入骨髓之毒"
+skill1-name: "§c【瘟疫浪潮】§f所有非狼人中毒10s扣4心 CD35s"
+skill2-name: "§c【蚀骨之毒】§f所有非狼人凋零10s扣6心 CD50s"
+skill3-name: "§c【狼族之愈】§f所有狼人10s恢复3心 CD40s"
+passive-name: "§c【亡语】§f死亡时所有非狼人扣3心"

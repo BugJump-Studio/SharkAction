@@ -1,0 +1,7 @@
+name: LANTERN BEARER
+display-name: "§6提灯人"
+camp: 好人阵营
+description: "黑夜灯塔"
+skill1-name: "§6【灯塔】§f给周围(r=6,含自己)每名未持有余烬的玩家发放1个[余烬] CD30s"
+skill2-name: "无"
+passive-name: "§6【余烬视野】§f可看到持有余烬的玩家阵营构成"

@@ -1,0 +1,7 @@
+name: DIO
+display-name: "§6迪奥·布兰度"
+camp: 狼人阵营
+description: "我真是嗨到不行啊"
+skill1-name: "§6【时停】§f全场时停7s 仅自己可活动 包含游戏时间 CD80s 开局进CD"
+skill2-name: "§6【替身】§f面前5格召唤替身 每0.5s对周围(r=5)所有玩家造成0.5心伤害 持续5s CD12s"
+passive-name: "无"

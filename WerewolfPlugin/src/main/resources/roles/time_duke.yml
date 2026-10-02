@@ -1,0 +1,7 @@
+name: TIME DUKE
+display-name: "§6时间公爵"
+camp: 和平中立
+description: "永恒不变的时间.."
+skill1-name: "§6【时间的凝滞】§f使最近(r=8)所有玩家陷入10s时停 CD18s"
+skill2-name: "§6【时间的回流】§f标记当前状态 再次使用恢复 全局仅一次"
+passive-name: "§6【时间蝙蝠】§f每10s召唤蝙蝠 使周围玩家时停5s"

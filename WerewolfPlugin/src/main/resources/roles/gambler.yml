@@ -1,0 +1,7 @@
+name: GAMBLER
+display-name: "§7赌徒"
+camp: 狼人阵营
+description: "生死赌局"
+skill1-name: "§7【生死赌局】§f与最近玩家判定 胜者+35绿宝石 败者死亡"
+skill2-name: "无"
+passive-name: "无"

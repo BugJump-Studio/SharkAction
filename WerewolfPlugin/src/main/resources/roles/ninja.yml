@@ -1,0 +1,8 @@
+name: NINJA
+display-name: "§0忍者"
+camp: 好人阵营
+description: "来无影 去无踪"
+skill1-name: "§0【速】§f获得速度十8s 初始1次 每50s获得一次 无CD"
+skill2-name: "§0【瞬身】§f标记最近玩家 蹲下右键[二技能]可切换目标 再次使用tp到该玩家+隐身6s 一次性"
+skill3-name: "§0【归】§f标记当前位置 再次使用传送回该位置 一次性"
+passive-name: "无"

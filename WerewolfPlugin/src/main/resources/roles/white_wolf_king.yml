@@ -1,0 +1,6 @@
+name: THE WHITE WOLF KING
+display-name: "§c白狼王"
+camp: 狼人阵营
+description: "孤独会让你更加强大"
+skill1-name: "§c【自爆】§f使周围(r=8)所有非狼人玩家死亡 全场扣1心+缓慢+反胃 全服广播白狼王身份 一次性"
+passive-name: "§c【孤独的王】§f仅剩自己时获得速度2 力量1 跳跃1"

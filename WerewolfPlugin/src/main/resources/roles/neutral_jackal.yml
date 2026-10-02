@@ -1,0 +1,7 @@
+name: NEUTRAL JACKAL
+display-name: "§9豺狼"
+camp: 危险中立
+description: "阴暗爪牙"
+skill1-name: "§9【招募】§f将最近玩家转换为跟班 开局CD30s"
+skill2-name: "无"
+passive-name: "§9【利刃】§f每30s获得一次秒刀 | §9【死亡传承】§f豺狼死亡后跟班变为新豺狼"

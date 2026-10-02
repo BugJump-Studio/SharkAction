@@ -1,0 +1,43 @@
+# 狼人杀战斗模式插件主配置文件
+
+# Web服务配置（仅用于游戏状态监控）
+web:
+  enabled: true
+  port: 8080
+  host: "0.0.0.0"
+
+# 游戏配置
+game:
+  min-players: 2          # 最少玩家数
+  max-players: 14         # 最多玩家数
+  duration: 500           # 游戏时长（秒）- 严格限制500秒
+  lobby-wait-time: 30     # 大厅等待时间
+
+# 战斗配置
+combat:
+  default-damage: 5.0     # 默认攻击力
+  max-health: 100.0       # 最大生命值
+  
+# 技能冷却配置（秒）
+skills:
+  werewolf:
+    skill1: 20            # 狂暴
+    skill2: 30            # 嗜血
+  seer:
+    skill1: 15            # 洞察
+    skill2: 25            # 预知
+  witch:
+    skill1: 60            # 治疗药水
+    skill2: 45            # 毒药
+  hunter:
+    skill1: 18            # 精准射击
+    skill2: 35            # 陷阱
+  villager:
+    skill1: 12            # 团结
+    skill2: 20            # 逃跑
+
+# 数据库配置（使用YAML文件存储）
+storage:
+  player-data: "playerdata.yml"
+  game-history: "games/"
+

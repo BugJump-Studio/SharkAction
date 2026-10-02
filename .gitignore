@@ -1,0 +1,30 @@
+# ---- Build output ----
+target/
+*.class
+
+# ---- Test / local server (never commit) ----
+TestServer/
+*.log
+*.log.gz
+logs/
+
+# ---- IDE ----
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.settings/
+.classpath
+.project
+nbproject/private/
+
+# ---- OS ----
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# ---- Runtime / secrets ----
+*.db
+*.log
+run/
