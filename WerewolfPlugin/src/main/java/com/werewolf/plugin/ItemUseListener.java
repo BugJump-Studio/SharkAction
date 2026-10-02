@@ -67,6 +67,20 @@ public class ItemUseListener implements Listener {
             return;
         }
 
+        // 风弹: 直接扔原版雪球的话实体没有自定义名, onProjectileHit 会当成普通雪球丢弃
+        if (name.contains("风弹") && item.getType() == Material.SNOWBALL) {
+            event.setCancelled(true);
+            Snowball windBall = player.launchProjectile(Snowball.class);
+            windBall.setCustomName("§b风弹");
+            windBall.setCustomNameVisible(false);
+            if (item.getAmount() > 1) {
+                item.setAmount(item.getAmount() - 1);
+            } else {
+                player.getInventory().removeItem(item);
+            }
+            return;
+        }
+
         // 医疗包: 4s读条，期间缓慢恢复3.5心
         if (name.contains("医疗包") && item.getType() == Material.GOLDEN_APPLE) {
             if (medkitChannelling.contains(player.getUniqueId())) return;
@@ -202,13 +216,13 @@ public class ItemUseListener implements Listener {
         shop.setItem(2, makeShopItem(Material.GOLDEN_APPLE, "§a医疗包×3", "§a20绿", bal));
         shop.setItem(3, makeShopItem(Material.LINGERING_POTION, "§a滞留型治疗药水", "§a30绿 §7生命恢复2 3s", bal));
         shop.setItem(4, makeShopItem(Material.LINGERING_POTION, "§c滞留型中毒药水", "§a20红 §7中毒2 3s", bal));
-        shop.setItem(5, makeShopItem(Material.STICK, "§c擂棐", "§a20红 §7+14攻击力", bal));
-        shop.setItem(6, makeShopItem(Material.NETHERITE_SWORD, "§c秒刀", "§a30红 §7锋利255 耐久1", bal));
-        shop.setItem(7, makeShopItem(Material.SHIELD, "§b盾", "§a50红 §90绿 §7耐久30", bal));
+        shop.setItem(5, makeShopItem(Material.STICK, "§c撬棍", "§a20红 §7+14攻击力", bal));
+        shop.setItem(6, makeShopItem(Material.NETHERITE_SWORD, "§c秒刀", "§c50红 §7锋利255 耐久1", bal));
+        shop.setItem(7, makeShopItem(Material.SHIELD, "§b盾", "§a50绿 §7或 §c30红 §7耐久30", bal));
         shop.setItem(9, makeShopItem(Material.TOTEM_OF_UNDYING, "§6不死图腾", "§a200绿", bal));
-        shop.setItem(10, makeShopItem(Material.SNOWBALL, "§b风弹×1", "§a15红 §30绿", bal));
-        shop.setItem(11, makeShopItem(Material.FISHING_ROD, "§b鱼竿", "§a30红 §50绿", bal));
-        shop.setItem(12, makeShopItem(Material.WRITABLE_BOOK, "§4死亡笔记", "§a90红 §150绿", bal));
+        shop.setItem(10, makeShopItem(Material.SNOWBALL, "§b风弹×1", "§a30绿 §7或 §c15红", bal));
+        shop.setItem(11, makeShopItem(Material.FISHING_ROD, "§b鱼竿", "§a50绿 §7或 §c30红", bal));
+        shop.setItem(12, makeShopItem(Material.WRITABLE_BOOK, "§4死亡笔记", "§a150绿 §7或 §c90红", bal));
 
         player.openInventory(shop);
     }
@@ -269,13 +283,13 @@ public class ItemUseListener implements Listener {
             case 3: buy(player, 30, 0, () -> player.getInventory().addItem(makeLingeringEffect(PotionEffectType.REGENERATION, 1, 60))); break;
             case 4: buy(player, 0, 20, () -> player.getInventory().addItem(makeLingeringEffect(PotionEffectType.POISON, 1, 60))); break;
             case 5: buy(player, 0, 20, () -> player.getInventory().addItem(gm.makeCrowbar())); break;
-            case 6: buy(player, 0, 30, () -> {
+            case 6: buy(player, 0, 50, () -> {
                 ItemStack blade = new ItemStack(Material.NETHERITE_SWORD); ItemMeta bm = blade.getItemMeta();
                 bm.addEnchant(org.bukkit.enchantments.Enchantment.DAMAGE_ALL, 255, true);
                 bm.setDisplayName("§4秒刀"); blade.setItemMeta(bm); blade.setDurability((short) (Material.NETHERITE_SWORD.getMaxDurability() - 1));
                 player.getInventory().addItem(blade);
             }); break;
-            case 7: buy(player, 90, 50, () -> {
+            case 7: buy(player, 50, 30, () -> {
                 ItemStack shield = new ItemStack(Material.SHIELD);
                 shield.setDurability((short) (Material.SHIELD.getMaxDurability() - 30));
                 player.getInventory().addItem(shield);

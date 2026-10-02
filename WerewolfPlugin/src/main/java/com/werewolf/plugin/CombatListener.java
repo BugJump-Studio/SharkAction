@@ -48,6 +48,10 @@ public class CombatListener implements Listener {
         }
 
         PlayerData victimData = plugin.getPlayerDataManager().getPlayerData(victim);
+
+        // Room.dealDamage() 触发的原版受击红闪(极小伤害), 直接放行, 不走下面的技能/普攻逻辑
+        if (victimData != null && victimData.getAttribute("__flash") != null) return;
+
         PlayerData attackerData = plugin.getPlayerDataManager().getPlayerData(attacker);
 
         // Null safety
@@ -104,6 +108,21 @@ public class CombatListener implements Listener {
                 zombie.setTarget(null);
             }
         }
+    }
+
+    // 赶尸人的僵尸: 原版索敌不认阵营, 会把主人和狼人阵营玩家也当成目标。
+    // 取消掉这些目标设置, 僵尸就只会追 Room.findNearestEnemyForMob 挑出的非狼人玩家。
+    @EventHandler
+    public void onHerderZombieTarget(org.bukkit.event.entity.EntityTargetLivingEntityEvent event) {
+        if (!(event.getEntity() instanceof Zombie)) return;
+        Zombie zombie = (Zombie) event.getEntity();
+        if (!zombie.hasMetadata("herderZombie")) return;
+        if (!(event.getTarget() instanceof Player)) return;
+        Player target = (Player) event.getTarget();
+        String owner = zombie.getMetadata("herderZombie").get(0).asString();
+        if (target.getUniqueId().toString().equals(owner)) { event.setCancelled(true); return; }
+        PlayerData targetData = plugin.getPlayerDataManager().getPlayerData(target);
+        if (targetData != null && "狼人阵营".equals(targetData.getCamp())) event.setCancelled(true);
     }
 
     @EventHandler
@@ -201,6 +220,10 @@ public class CombatListener implements Listener {
         Room room = gm.getRoomForPlayer(player);
 
         if (data == null || !data.isInGame()) return;
+
+        // Room.dealDamage() 触发的原版受击红闪: 直接放行。
+        // 否则无来源的 CUSTOM 伤害会被下面的白名单拦掉, 红闪就出不来。
+        if (data.getAttribute("__flash") != null) return;
 
         // During game: allow PVP + fire + projectile + magic + effect damage, cancel the rest
         if (room != null && room.getCurrentState() == GameState.PLAYING) {

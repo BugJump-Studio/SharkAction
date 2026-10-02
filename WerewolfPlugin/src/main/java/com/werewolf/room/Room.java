@@ -40,6 +40,7 @@ public class Room {
     private final Map<UUID, BukkitTask> activeBombs = new HashMap<>();
     private final Map<UUID, BukkitTask> hackerAuraTasks = new HashMap<>();
     private final Set<UUID> countFrenzyActive = new HashSet<>();
+    private final Map<UUID, BukkitRunnable> countFrenzyTasks = new HashMap<>();
     private final Map<UUID, Integer> wizardEnergy = new HashMap<>();
     private final Map<UUID, Integer> slimeLives = new HashMap<>();
     private final Map<UUID, Integer> bladeSoulS1Stacks = new HashMap<>();
@@ -1547,6 +1548,8 @@ public class Room {
         bladeSoulS1Stacks.clear(); bladeSoulS2Stacks.clear();
         ninjaPlayerMarks.clear(); ninjaReturnMarks.clear();
         hackerLocationMarks.clear(); pelicanStoredPlayers.clear(); revivalCharges.clear();
+        for (BukkitRunnable fz : countFrenzyTasks.values()) { try { fz.cancel(); } catch (Throwable ignored) { } }
+        countFrenzyTasks.clear();
         countFrenzyActive.clear();
         for (ArmorStand knife : flyingKnives) knife.remove();
         flyingKnives.clear();
@@ -1601,6 +1604,8 @@ public class Room {
         dioStands.clear();
         if (timeStopTask != null) { timeStopTask.cancel(); timeStopTask = null; }
         unfreezeAll();
+        for (BukkitRunnable fz : countFrenzyTasks.values()) { try { fz.cancel(); } catch (Throwable ignored) { } }
+        countFrenzyTasks.clear();
         countFrenzyActive.clear();
         if (tideBombTask != null) { tideBombTask.cancel(); tideBombTask = null; }
         cleanupTideBombs();
@@ -1639,6 +1644,8 @@ public class Room {
     // ==================== SKILL DISPATCHER ====================
 
     private static boolean isOneTimeSkill(String roleName, String skillId) {
+        // 剑灵四技能【剑灵】一次性, 用完即消耗钻石且不再进入冷却
+        if ("BLADE AND SOUL".equals(roleName)) return "skill4".equals(skillId);
         if (!"skill1".equals(skillId)) return false;
         return "WOLF JACKAL".equals(roleName) || "BUDDHIST MONK".equals(roleName)
             || "NEUTRAL JACKAL".equals(roleName) || "THE WHITE WOLF KING".equals(roleName);
@@ -1670,7 +1677,8 @@ public class Room {
         if (cd > 0) { player.sendMessage("§c技能冷却中！剩余 " + cd + " 秒"); return; }
         // 转换身份类技能: 一次性使用，用完即无钻石且无CD
         if (isOneTimeSkill(role.getName(), skillId) && player.isSkillUsed(oneTimeKey(role.getName(), skillId))) {
-            player.sendMessage("§c该转换技能只能使用一次，已消耗！");
+            if ("BLADE AND SOUL".equals(role.getName())) player.sendMessage("§c【剑灵】是一次性技能，已使用完毕！");
+            else player.sendMessage("§c该转换技能只能使用一次，已消耗！");
             return;
         }
         // 忍者瞬身/归: 两段式一次性技能，完成传送后消耗
@@ -1830,9 +1838,22 @@ public class Room {
         zombie.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 999999, 3, true, false));
         zombie.setShouldBurnInDay(false);
         zombie.setTarget(findNearestEnemyForMob(bp));
+        // 原版"寻找可攻击目标"AI不认阵营, 会把狼人阵营玩家也列为目标;
+        // 由 CombatListener 的 EntityTargetLivingEntityEvent 拦截 (兜底), 这里再按阵营刷新目标
         zombie.setMetadata("herderZombie", new org.bukkit.metadata.FixedMetadataValue(plugin, bp.getUniqueId().toString()));
         zombie.setRemoveWhenFarAway(true);
         herderZombies.add(zombie);
+        new BukkitRunnable() {
+            @Override public void run() {
+                if (!zombie.isValid() || !herderZombies.contains(zombie)) { cancel(); return; }
+                if (state != GameState.PLAYING || !pd.isAlive()) { cancel(); return; }
+                Player owner = pd.getBukkitPlayer();
+                if (owner == null || !owner.isOnline()) { zombie.setTarget(null); return; }
+                Player target = findNearestEnemyForMob(owner);
+                if (target != null) zombie.setTarget(target);
+                else if (zombie.getTarget() != null) zombie.setTarget(null);
+            }
+        }.runTaskTimer(plugin, 20L, 20L);
         pd.setAttribute("herderCharges", charges - 1);
         bp.sendMessage("§a赶尸！催尸已生成！剩余次数: " + (charges - 1));
     }
@@ -1843,13 +1864,16 @@ public class Room {
         PlayerData nearest = findNearestPlayer(pd, 10.0, PlayerData::isAlive);
         if (nearest == null) { bp.sendMessage("§c附近没有玩家！"); suppressCooldown = true; return; }
         Player nb = nearest.getBukkitPlayer(); if (nb == null || !nb.isOnline()) { suppressCooldown = true; return; }
-        if (random.nextBoolean()) {
-            bp.getInventory().addItem(new ItemStack(Material.EMERALD, 35));
-            broadcast("§e" + pd.getUsername() + " §7在赌局中赢了 §e" + nearest.getUsername() + " §7！获得35绿宝石");
-        } else {
-            killPlayer(nearest, pd);
-            nearest.getBukkitPlayer().sendTitle("§c赌局输了", "§7你死了", 10, 40, 10);
-        }
+        // 生死赌局: 胜者获得35绿宝石, 败者立刻死亡
+        boolean gamblerWins = random.nextBoolean();
+        PlayerData winner = gamblerWins ? pd : nearest;
+        PlayerData loser = gamblerWins ? nearest : pd;
+        Player wb = winner.getBukkitPlayer();
+        if (wb != null && wb.isOnline()) wb.getInventory().addItem(new ItemStack(Material.EMERALD, 35));
+        broadcast("§e" + winner.getUsername() + " §7在赌局中赢了 §e" + loser.getUsername() + " §7！获得35绿宝石");
+        Player lb = loser.getBukkitPlayer();
+        if (lb != null && lb.isOnline()) lb.sendTitle("§c赌局输了", "§7你死了", 10, 40, 10);
+        killPlayer(loser, null);
     }
 
     private void skillDiO(PlayerData pd, String skillId) {
@@ -2290,7 +2314,9 @@ public class Room {
             bp.sendMessage("§c撕咬！");
             setCooldown(pd, skillId, 10);
         } else if ("skill2".equals(skillId)) {
-            // 狂热之血: 技能2 = 切换形态(进入/退出) CD3s
+            // 狂热之血: 技能2 = 一键切换形态(进入/退出) CD3s, 切换功能只由这一个技能负责
+            BukkitRunnable oldTask = countFrenzyTasks.remove(uuid);
+            if (oldTask != null) oldTask.cancel();
             if (frenzy) {
                 countFrenzyActive.remove(uuid);
                 stopFrenzyEffect(bp);
@@ -2306,13 +2332,15 @@ public class Room {
                 pd.setAttribute("countPassiveCd", 6);
                 bp.sendTitle("§c§l狂热之血", "§7已进入狂热形态", 5, 40, 10);
                 bp.sendMessage("§c§l狂热之血！形态已切换（再次使用技能2退出）");
-                new BukkitRunnable() {
+                BukkitRunnable frenzyTask = new BukkitRunnable() {
                     @Override public void run() {
                         if (!countFrenzyActive.contains(uuid) || !pd.isAlive() || state != GameState.PLAYING) { cancel(); return; }
                         // 每3s扣自己3.5心
                         dealDamage(bp, 7.0, null);
                     }
-                }.runTaskTimer(plugin, 60L, 60L);
+                };
+                frenzyTask.runTaskTimer(plugin, 60L, 60L);
+                countFrenzyTasks.put(uuid, frenzyTask);
             }
         } else if ("skill3".equals(skillId)) {
             // 蝙蝠唤取: 仅狂热形态可用, 隐身3s + 召唤20只蝙蝠 CD20s
@@ -2593,7 +2621,7 @@ public class Room {
         Player nb = nearest.getBukkitPlayer();
         if (nb != null && nb.isOnline()) {
             nb.sendTitle("§a劝善成功", "§7你现在是武僧", 10, 60, 10);
-            nb.sendMessage("§a你被佛陀劝善了，你现在是正义阵营！");
+            nb.sendMessage("§a你被佛僧劝善了，你现在是正义阵营！");
         }
         initializePlayerForBattle(nearest);
         bp.sendMessage("§a劝善成功！转化了 " + nearest.getUsername());
@@ -2847,7 +2875,10 @@ public class Room {
                     ticks++;
                 }
             }.runTaskTimer(plugin, 0L, 2L);
-            setCooldown(pd, skillId, 30);
+            // 一次性技能: 消耗技能钻石, 不进入冷却
+            pd.setSkillUsed(oneTimeKey(pd.getRole().getName(), skillId), true);
+            consumeSkillDiamond(pd, skillId);
+            bp.sendMessage("§7【剑灵】为一次性技能, 已使用完毕。");
         }
     }
 
@@ -3061,6 +3092,9 @@ public class Room {
         if (td == null || !td.isAlive()) return;
         double hp = target.getHealth();
         double newHp = hp - amount;
+        // 先触发原版受击红闪/音效, 再按真伤扣血 (实际扣血以下面的 setHealth 为准)
+        triggerHurtFlash(target, td, source);
+        showHitFeedback(target, amount, source);
         if (newHp <= 0) {
             // setHealth(0) does not fire PlayerDeathEvent, so a vanilla death is never
             // reported here. Leave a marker: if it somehow does fire, CombatListener
@@ -3074,20 +3108,40 @@ public class Room {
             }
         } else {
             target.setHealth(newHp);
-            showHitFeedback(target, amount, source);
         }
     }
 
-    // 受击反馈: 音效 + 标题 (最多每秒一次, 避免刷屏)
+    // 原版受击红闪: 用一次极小伤害触发 hurt 动画与受击音效。
+    // 真伤仍由 dealDamage 的 setHealth 计算, 这次伤害不参与扣血结果。
+    // "__flash" 标记让 CombatListener 放行 (否则 CUSTOM/ENTITY_ATTACK 会被白名单或技能逻辑干扰)。
+    private void triggerHurtFlash(Player target, PlayerData td, Player source) {
+        if (target == null || !target.isOnline() || td == null) return;
+        td.setAttribute("__flash", Boolean.TRUE);
+        try {
+            if (source != null && source.isOnline() && source != target) target.damage(0.0001, source);
+            else target.damage(0.0001);
+        } catch (Throwable ignored) {
+        } finally {
+            td.removeAttribute("__flash");
+        }
+    }
+
+    // 受击反馈: 动作栏(不会被技能紧接着发的标题覆盖) + 命中音效, 双方都提示 (每目标最多每秒一次)
     private void showHitFeedback(Player target, double amount, Player source) {
         long now = System.currentTimeMillis();
         Long last = hitFeedbackAt.get(target.getUniqueId());
         if (last != null && now - last < 1000L) return;
         hitFeedbackAt.put(target.getUniqueId(), now);
-        target.playSound(target.getLocation(), Sound.ENTITY_PLAYER_HURT, 1.0f, 1.0f);
-        String who = source != null ? " - " + source.getName() : "";
         int hearts = Math.max(1, (int) Math.round(amount / 2.0));
-        target.sendTitle("§c受到伤害" + who, "§7-" + hearts + "心", 0, 15, 5);
+        PlayerData td = plugin.getPlayerDataManager().getPlayerData(target);
+        if (td != null) {
+            td.sendActionBar("§c受到伤害 §7-" + hearts + "心" + (source != null ? " §8来自 §f" + source.getName() : ""));
+        }
+        if (source != null && source.isOnline() && source != target) {
+            source.playSound(source.getLocation(), Sound.ENTITY_ARROW_HIT_PLAYER, 1.0f, 1.2f);
+            PlayerData sd = plugin.getPlayerDataManager().getPlayerData(source);
+            if (sd != null) sd.sendActionBar("§e命中 §f" + target.getName() + " §7-" + hearts + "心");
+        }
     }
 
     public void healPlayer(Player target, double amount) {
@@ -3189,6 +3243,7 @@ public class Room {
             if (!pd.isAlive()) continue;
             Player bp = pd.getBukkitPlayer();
             if (bp == null || !bp.isOnline() || bp == owner) continue;
+            if (bp.getWorld() != owner.getWorld()) continue;
             // 赶尸人的僵尸不攻击狼人阵营
             if ("狼人阵营".equals(pd.getCamp())) continue;
             double dist = owner.getLocation().distance(bp.getLocation());
@@ -3237,7 +3292,7 @@ public class Room {
         case "KNIGHT": return 40;
         case "NINJA": return 0;
         case "CORPSE HERDER": return 0;
-        case "BLADE AND SOUL": return "skill3".equals(skillId) ? 20 : "skill4".equals(skillId) ? 30 : 0;
+        case "BLADE AND SOUL": return "skill3".equals(skillId) ? 20 : 0;
             case "WIZARD": return 5;
             case "ARSONIST": return 20;
             case "TIME DUKE": return 18;
