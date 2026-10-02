@@ -2,7 +2,7 @@ name: SharkAction
 version: '${project.version}'
 main: com.werewolf.plugin.WerewolfPlugin
 api-version: '1.19'
-author: WerewolfTeam
+author: BugJump-Studio
 description: Minecraft Shark Action Game Plugin
 
 commands:

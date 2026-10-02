@@ -6,7 +6,7 @@
 
 ## 加入内测交流
 
-QQ 群：[点击加入群聊](https://qm.qq.com/q/IgrhYpf2gY)（群号 521093171）
+QQ 群：[点击加入群聊](https://qm.qq.com/q/qzhZDFMnBY)（群号 892272140）
 
 反馈问题、提建议、参与数值讨论都欢迎在群里聊，也可以直接提 [GitHub Issue](https://github.com/BugJump-Studio/SharkAction/issues)。
 
@@ -158,7 +158,7 @@ set MAVEN_OPTS=-Xmx1g && mvn clean package -q
 
 本项目代码采用 **GNU 通用公共许可证 v3.0 (GPL-3.0)** 授权。
 
-Copyright (C) 2026 WerewolfTeam
+Copyright (C) 2026 BugJump-Studio
 
 本程序为自由软件：您可以在自由软件基金会发布的 GNU 通用公共许可证 v3.0 或更高版本的条款下重新分发和/或修改它。
 
