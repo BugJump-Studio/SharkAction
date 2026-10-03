@@ -1873,7 +1873,7 @@ public class Room {
         broadcast("§e" + winner.getUsername() + " §7在赌局中赢了 §e" + loser.getUsername() + " §7！获得35绿宝石");
         Player lb = loser.getBukkitPlayer();
         if (lb != null && lb.isOnline()) lb.sendTitle("§c赌局输了", "§7你死了", 10, 40, 10);
-        killPlayer(loser, null);
+        killPlayer(loser, winner);
     }
 
     private void skillDiO(PlayerData pd, String skillId) {
@@ -3114,8 +3114,55 @@ public class Room {
     // 原版受击红闪: 用一次极小伤害触发 hurt 动画与受击音效。
     // 真伤仍由 dealDamage 的 setHealth 计算, 这次伤害不参与扣血结果。
     // "__flash" 标记让 CombatListener 放行 (否则 CUSTOM/ENTITY_ATTACK 会被白名单或技能逻辑干扰)。
+    //
+    // 本次 damage 会把 NMS 的无敌帧字段(Entity#invulnerableTime)写成 20, 等于白送被击者 1s 无敌,
+    // 所以 damage 前先把该字段读出来清零(确保红闪一定触发), damage 后再还原成原值。
+    // 红闪是靠 damage 期间广播给客户端的受击包驱动的, 客户端自己有一份副本, 还原服务端字段不影响红闪。
+    private static java.lang.reflect.Field[] hurtTickFields;
+    private static boolean hurtTickResolved;
+    private static boolean hurtTickWarned;
+
+    private java.lang.reflect.Field[] hurtTickFields(Player target) {
+        if (hurtTickResolved) return hurtTickFields;
+        hurtTickResolved = true;
+        try {
+            java.util.List<java.lang.reflect.Field> found = new java.util.ArrayList<>();
+            Object nms = target.getClass().getMethod("getHandle").invoke(target);
+            for (String want : new String[]{"invulnerableTime", "hurtTime"}) {
+                for (Class<?> c = nms.getClass(); c != null; c = c.getSuperclass()) {
+                    try {
+                        java.lang.reflect.Field f = c.getDeclaredField(want);
+                        f.setAccessible(true);
+                        found.add(f);
+                        break;
+                    } catch (NoSuchFieldException ignored) {
+                    }
+                }
+            }
+            if (!found.isEmpty()) hurtTickFields = found.toArray(new java.lang.reflect.Field[0]);
+        } catch (Throwable ignored) {
+        }
+        if (hurtTickFields == null && !hurtTickWarned) {
+            hurtTickWarned = true;
+            plugin.getLogger().warning("[SharkAction] 定位无敌帧字段失败, 受击红闪会给被击者短暂无敌帧");
+        }
+        return hurtTickFields;
+    }
+
     private void triggerHurtFlash(Player target, PlayerData td, Player source) {
         if (target == null || !target.isOnline() || td == null) return;
+        java.lang.reflect.Field[] immune = hurtTickFields(target);
+        Integer[] prev = null;
+        if (immune != null) {
+            prev = new Integer[immune.length];
+            for (int i = 0; i < immune.length; i++) {
+                try { prev[i] = immune[i].getInt(target); } catch (Throwable ignored) { prev[i] = null; }
+            }
+            for (int i = 0; i < immune.length; i++) {
+                if (prev[i] == null) continue;
+                try { immune[i].setInt(target, 0); } catch (Throwable ignored) { }
+            }
+        }
         td.setAttribute("__flash", Boolean.TRUE);
         try {
             if (source != null && source.isOnline() && source != target) target.damage(0.0001, source);
@@ -3123,6 +3170,12 @@ public class Room {
         } catch (Throwable ignored) {
         } finally {
             td.removeAttribute("__flash");
+            if (prev != null) {
+                for (int i = 0; i < immune.length; i++) {
+                    if (prev[i] == null) continue;
+                    try { immune[i].setInt(target, prev[i]); } catch (Throwable ignored) { }
+                }
+            }
         }
     }
 
